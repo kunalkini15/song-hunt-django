@@ -19,14 +19,14 @@ class Song(models.Model):
     def __str__(self):
         return self.name
 
-class SongArtist(models.Model):
-    song = models.ForeignKey('Song', on_delete=models.CASCADE)
-    artist = models.ForeignKey('Artist', on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = ('song', 'artist')
+class TestSongArtist(models.Model):
+    song = models.ForeignKey('Song', on_delete=models.CASCADE)
+    artists = models.ManyToManyField('Artist')
+
     def __str__(self):
-        return self.song.name + " - " + self.artist.name
+        return self.song.name +  " - " + str(self.id)
+
 
 class UserSongRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

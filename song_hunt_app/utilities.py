@@ -1,16 +1,20 @@
-from .models import Song, Artist, SongArtist, UserSongRating
+from .models import Song, Artist, UserSongRating, TestSongArtist
 from django.contrib.auth.models import User
 from django.db.models import Avg, Count
 from .serializers import SongSerializer, ArtistSerializer
 def getArtists(song):
-    song_artist_objects = SongArtist.objects.filter(song=song)
+
+
+    test_song_artist_object = TestSongArtist.objects.filter(song=song)
     artists = []
-    for song_artist in song_artist_objects:
-        current_obj = {
-            "id": song_artist.artist.id,
-            "name": song_artist.artist.name
-        }
-        artists.append(current_obj)
+    for i in test_song_artist_object:
+        artist_objects = i.artists.all()
+        for artist in artist_objects:
+            current_obj={
+                "id": artist.id,
+                "name": artist.name
+            }
+            artists.append(current_obj)
     return artists
 
 def getRatingDetails(song):
@@ -39,13 +43,17 @@ def getArtistObj(artist):
     return serializer.data
 
 def getSongDetails(artist):
-    song_artists = SongArtist.objects.filter(artist=artist)
+    songs_by_current_artist = TestSongArtist.objects.filter(artists__id=artist.id)
     songs = []
     ratings =[]
-    for song_artist in song_artists:
-        songs.append(getSongObj(song_artist.song))
-        ratings.append(getRatingDetails(song_artist.song)["rating__avg"])
+    for song in songs_by_current_artist:
+        songs.append(getSongObj(song.song))
+        ratings.append(getRatingDetails(song.song)["rating__avg"])
+    if len(ratings) == 0:
+        rating = 0
+    else:
+        rating = sum(ratings) / len(ratings)
     return {
         'songs': songs,
-        'rating': sum(ratings)/len(ratings)
+        'rating': rating
     }

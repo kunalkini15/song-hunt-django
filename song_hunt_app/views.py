@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 
-from .models import Artist, Song, SongArtist, UserSongRating
+from .models import Artist, Song, UserSongRating, TestSongArtist
 from .serializers import SongSerializer
 from .utilities import *
 from rest_framework.response import Response
@@ -122,16 +122,14 @@ class ArtistView(APIView):
 class ArtistAllSongs(APIView):
     def get(self, request):
         email = request.GET["email"]
-        response = []
-
-        songs_by_current_artist = SongArtist.objects.filter( # filter based on artist object name
-                                    artist = Artist.objects.get( # fetching using foreign key of artist
-                                        user=User.objects.get(email=email) # fetching user object using email
-                                    )
-                                )
-        songs= []
-        for song_artist in songs_by_current_artist:
-            songs.append(song_artist.song)
+        try:
+            artist = Artist.objects.get(user=User.objects.get(email=email))
+            songs_by_current_artist = TestSongArtist.objects.filter(artists__id=artist.id)
+        except:
+            songs_by_current_artist= []
+        songs=[]
+        for song in songs_by_current_artist:
+            songs.append(song.song)
         serializer = SongSerializer(songs, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
@@ -144,13 +142,19 @@ class SongView(APIView):
             song_id = song_serializer.data["id"]
             email = request.headers["email"]
 
-            SongArtist.objects.create(song=Song.objects.get(id=song_id), artist=Artist.objects.get(user=User.objects.get(email=email)))
+            current_artist = Artist.objects.get(user=User.objects.get(email=email))
+            test_song_artist_object = TestSongArtist.objects.create(song=Song.objects.get(id=song_id))
+            test_song_artist_object.save()
+
+            test_song_artist_object.artists.add(current_artist)
             try:
                 artists = [int(i) for i in request.data["selectedArtists"].split(",")]
-                for id in artists:
-                    SongArtist.objects.create(song=Song.objects.get(id=song_id), artist=Artist.objects.get(id=id))
             except:
-                pass
+                artists = []
+            for id in artists:
+                if id != current_artist.id:
+                    test_song_artist_object.artists.add(Artist.objects.get(id=id))
+            test_song_artist_object.save()
             return Response(song_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(song_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
