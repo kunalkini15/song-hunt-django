@@ -1,0 +1,1 @@
+web: gunicorn song_hunt.wsgi
