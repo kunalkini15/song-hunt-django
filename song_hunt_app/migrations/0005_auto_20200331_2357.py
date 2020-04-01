@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
+    atomic = False
     dependencies = [
         ('song_hunt_app', '0004_delete_songartist'),
     ]

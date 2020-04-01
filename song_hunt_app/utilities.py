@@ -1,11 +1,11 @@
-from .models import Song, Artist, UserSongRating, TestSongArtist
+from .models import Song, Artist, UserSongRating, SongArtist
 from django.contrib.auth.models import User
 from django.db.models import Avg, Count
 from .serializers import SongSerializer, ArtistSerializer
 def getArtists(song):
 
 
-    test_song_artist_object = TestSongArtist.objects.filter(song=song)
+    test_song_artist_object = SongArtist.objects.filter(song=song)
     artists = []
     for i in test_song_artist_object:
         artist_objects = i.artists.all()
@@ -43,7 +43,7 @@ def getArtistObj(artist):
     return serializer.data
 
 def getSongDetails(artist):
-    songs_by_current_artist = TestSongArtist.objects.filter(artists__id=artist.id)
+    songs_by_current_artist = SongArtist.objects.filter(artists__id=artist.id)
     songs = []
     ratings =[]
     for song in songs_by_current_artist:

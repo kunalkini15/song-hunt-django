@@ -14,19 +14,18 @@ class Artist(models.Model):
 class Song(models.Model):
     name = models.CharField(max_length=50)
     release_date = models.DateField()
-    image = models.ImageField(null=True, upload_to='song_artworks')
+    image = models.ImageField(null=True, upload_to='song_artworks', blank=True)
 
     def __str__(self):
         return self.name
 
 
-class TestSongArtist(models.Model):
+class SongArtist(models.Model):
     song = models.ForeignKey('Song', on_delete=models.CASCADE)
     artists = models.ManyToManyField('Artist')
 
     def __str__(self):
         return self.song.name +  " - " + str(self.id)
-
 
 class UserSongRating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
