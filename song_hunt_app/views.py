@@ -77,6 +77,12 @@ class Login(APIView):
             except:
                 return Response("User doesn't exist", status=status.HTTP_401_UNAUTHORIZED)
 
+class DeleteAccount(APIView):
+    def delete(self, request):
+        email = request.data["email"]
+        User.objects.filter(email=email).delete()
+        return Response("Account deleted successfully", status=status.HTTP_204_NO_CONTENT)
+
 
 class ArtistView(APIView):
 
