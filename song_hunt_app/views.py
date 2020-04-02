@@ -66,17 +66,16 @@ class Login(APIView):
         else:
 
             try:
-                user = authenticate(username=email, password=password)
 
+                user = authenticate(username=email, password=password)
                 if user:
-                    login(request, user)
                     return Response("User Logged in successfully", status=status.HTTP_200_OK)
 
                 else:
                     return Response("Wrong password", status=status.HTTP_401_UNAUTHORIZED)
 
             except:
-                return Response("User doesn't exist", status=status.HTTP_404_NOT_FOUND)
+                return Response("User doesn't exist", status=status.HTTP_401_UNAUTHORIZED)
 
 
 class ArtistView(APIView):
